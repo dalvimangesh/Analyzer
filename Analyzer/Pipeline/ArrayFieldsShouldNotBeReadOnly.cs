@@ -5,31 +5,25 @@ using Mono.Cecil;
 namespace Analyzer.Pipeline
 {
     /// <summary>
-    /// Analyzer rule to detect and report readonly array fields in classes.
+    /// Analyzer rule for detecting readonly array fields in classes.
     /// </summary>
     public class ArrayFieldsShouldNotBeReadOnlyRule : AnalyzerBase
     {
-        // Fields to store analysis results
         private string errorMessage;
         private int verdict;
         private readonly string analyzerID;
 
-        /// <summary>
-        /// Initializes a new instance of the ArrayFieldsShouldNotBeReadOnlyRule class.
-        /// </summary>
-        /// <param name="dllFiles">The ParsedDLLFiles object containing the parsed DLL information.</param>
         public ArrayFieldsShouldNotBeReadOnlyRule(ParsedDLLFiles dllFiles) : base(dllFiles)
         {
-            // Initialize fields
             errorMessage = "";
             verdict = 1;
-            analyzerID = "arrayFieldsShouldNotBeReadOnly";
+            analyzerID = "ArrayFieldsShouldNotBeReadOnly";
         }
 
         /// <summary>
         /// Runs the analysis to check for readonly array fields in classes.
         /// </summary>
-        /// <returns>An AnalyzerResult object indicating the analysis result.</returns>
+        /// <returns>An <see cref="AnalyzerResult"/> based on the analysis.</returns>
         public override AnalyzerResult Run()
         {
             CheckForReadOnlyArrayFields();
@@ -37,11 +31,10 @@ namespace Analyzer.Pipeline
         }
 
         /// <summary>
-        /// Checks each class for the presence of readonly array fields.
+        /// Checks each class for readonly array fields.
         /// </summary>
         private void CheckForReadOnlyArrayFields()
         {
-            // Iterate through each class and its fields
             foreach (ParsedClassMonoCecil cls in parsedDLLFiles.classObjListMC)
             {
                 foreach (FieldDefinition field in cls.FieldsList)
@@ -49,8 +42,9 @@ namespace Analyzer.Pipeline
                     // Check if the field is an array and is marked as readonly
                     if (field.IsInitOnly && field.IsPublic && field.FieldType.IsArray)
                     {
+                        
                         verdict = 0;
-                        errorMessage = "Readonly array field found.";
+                        errorMessage = $"Readonly array field found in class {field.DeclaringType.FullName}, field {field.Name}.";
                         return; // You can return early if a readonly array field is found.
                     }
                 }
